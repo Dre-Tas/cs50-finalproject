@@ -34,8 +34,8 @@ class RecordSchema(ma.ModelSchema):
 def index():
     return render_template('index.html')
 
-# endpoint
-@app.route('/countrow')
+# endpoint / API
+@app.route('/api/dbrecords')
 def countrow():
     records = Record.query.all()
     records_schema = RecordSchema(many=True)

@@ -10,7 +10,7 @@ class App extends Component {
     }
 
     getData() {
-        let data = fetch('http://127.0.0.1:5000/countrow')
+        let data = fetch('http://127.0.0.1:5000/api/dbrecords')
             .then((resp) => {
                 resp.json().then((res) => {
                     this.setState(res);
