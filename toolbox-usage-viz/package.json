@@ -3,7 +3,11 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "chart.js": "^2.7.2",
+        "lodash": "^4.17.11",
+        "moment": "^2.22.2",
         "react": "^16.5.2",
+        "react-chartjs-2": "^2.7.4",
         "react-dom": "^16.5.2",
         "react-scripts": "1.1.5"
     },
