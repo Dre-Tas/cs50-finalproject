@@ -20,14 +20,13 @@ class App extends Component {
 
     fetchData() {
         let data = fetch('http://127.0.0.1:5000/api/dbrecords')
-            .then((resp) => {
-                resp.json().then((res) => {
-                    this.setState({
-                        records_lst : res,
-                    });
-                });
-            })
-    }
+            .then(response => response.json())
+            .then((data) => {
+                this.setState({
+                    records_lst : data,
+                })
+            });
+        }
 
 
     render() {
