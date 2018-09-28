@@ -1,16 +1,20 @@
 import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.css';
+import BarGraph from './components/BarGraph';
 import moment from 'moment';
-import {HorizontalBar} from 'react-chartjs-2';
-import _ from 'lodash';
+import {Bar} from 'react-chartjs-2';
+// import _ from 'lodash';
 
 class App extends Component {
     constructor() {
         super();
         this.state = {
             records_lst : [],
-        }
+        };
+    }
+
+    componentWillMount() {
         this.fetchData();
     }
 
@@ -18,11 +22,12 @@ class App extends Component {
         let data = fetch('http://127.0.0.1:5000/api/dbrecords')
             .then((resp) => {
                 resp.json().then((res) => {
-                    this.setState({records_lst : res});
+                    this.setState({
+                        records_lst : res,
+                    });
                 });
             })
     }
-
 
 
     render() {
@@ -30,24 +35,35 @@ class App extends Component {
         //
         // var versions = new Set([]);
 
-        return (<div className="App">
+        return (
+            <div className="App">
 
-          <TimesUsed pass={this.state.records_lst}/>
+            <TimesUsed pass={this.state.records_lst.length}/>
 
-          <TotUsageTime pass={this.state.records_lst}/>
+            <TotUsageTime pass={this.state.records_lst}/>
 
-            {/* <h1>For a total run time of {usage_time.toFixed(2)} seconds...</h1>
-            <h3>or {(usage_time / 60 / 60).toFixed(2)} hours...</h3>
+            <br/>
 
-            {this.state.records_lst.map(function(lst, i) {
+            {/* Set up initial graph which just tells how many times the toolbox has been used */}
+            {/* Render the graph only when the app has fetched the data from the server! */}
+            {this.state.records_lst.length ? (
+                <BarGraph
+                    label1={'Toolbox - whole'}
+                    label2={'tu-ma'}
+                    textTitle={'Just a Test'}
+                    countUsed={this.state.records_lst.length}
+                />
+            ) : (
+                "Fetching Data from server..."
+            )}
+
+            {/* {this.state.records_lst.map(function(lst, i) {
                 versions.add(lst.revitversion)
             })}
 
             {Array.from(versions).map(function(lst, i) {
                 return <p key={i}>{lst}</p>
             })} */}
-
-            {/* <HBarGraph records={records}/> */}
         </div>);
     }
 }
@@ -59,7 +75,7 @@ class TimesUsed extends Component {
 
     render() {
         return (
-            <h2>Willow.Design() has been used {this.props.pass.length} times!</h2>
+            <h2>Willow.Design() has been used {this.props.pass} times!</h2>
         );
     }
 }
@@ -94,37 +110,4 @@ class TotUsageTime extends Component {
     }
 }
 
-
 export default App;
-
-// class HorBarG extends Component {
-//     constructor (props) {
-//         super(props);
-//         this.state = {
-//             a : []
-//         };
-//     }
-//
-//
-// }
-//
-// const HBarGraph = (props) => {
-//     const data = {
-//       labels: ['2018', '2017'],
-//       datasets: [
-//         {
-//           label: 'Which version is more popular?',
-//           backgroundColor: 'rgba(255,153,0,0.2)',
-//           borderColor: 'rgba(255,153,0,1)',
-//           borderWidth: 1,
-//           hoverBackgroundColor: 'rgba(255,99,132,0.4)',
-//           hoverBorderColor: 'rgba(255,99,132,1)',
-//           data: [65, 59]
-//         }
-//       ]
-//     };
-//
-//     return (
-//         <HorizontalBar data={data}/>
-//     )
-// }

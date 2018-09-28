@@ -46,20 +46,3 @@ def sendRecords():
     records_schema = RecordSchema(many=True)
     output = records_schema.dump(records).data
     return jsonify(output)
-
-
-@app.route('/api/byversion')
-def sendVersions():
-    # First get unique revit versions contained in db by using a set
-    versions = set()
-    for v in db.session.query(Record.revitversion).all():
-        versions.add(v.revitversion)
-
-    # Create dictionary to host revit version and corresponding count
-    vers_count = {}
-    for vers in versions:
-        count_vers = Record.query.filter_by(revitversion=vers).count()
-        vers_count.update({vers : count_vers})
-
-    # Turn dict to json and return
-    return jsonify({"count" : vers_count})
