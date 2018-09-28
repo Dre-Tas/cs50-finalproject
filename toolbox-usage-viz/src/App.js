@@ -23,7 +23,7 @@ class App extends Component {
             })
     }
 
-    calcTotalsageTime() {
+    calcTotalUsageTime() {
         // Calculates the time in milliseconds
         let total_usage_time = 0;
 
