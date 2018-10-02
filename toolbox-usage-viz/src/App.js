@@ -41,7 +41,7 @@ class App extends Component {
 
                 {/* Pass all JSON to graph */}
                 {this.state.records_lst.length ? (
-                    <BarGraph culo={this.state.records_lst} />
+                    <BarGraph recs={this.state.records_lst} />
                 ) : (
                         "Fetching Data from server..."
                     )}
