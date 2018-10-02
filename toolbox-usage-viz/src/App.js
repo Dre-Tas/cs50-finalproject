@@ -1,20 +1,19 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import BarGraph from './components/BarGraph';
 import moment from 'moment';
-import {Bar} from 'react-chartjs-2';
-// import _ from 'lodash';
+import { Bar } from 'react-chartjs-2';
 
 class App extends Component {
     constructor() {
         super();
         this.state = {
-            records_lst : [],
+            records_lst: [],
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.fetchData();
     }
 
@@ -23,47 +22,31 @@ class App extends Component {
             .then(response => response.json())
             .then((data) => {
                 this.setState({
-                    records_lst : data,
+                    records_lst: data,
                 })
             });
-        }
-
+    }
 
     render() {
-        // var usage_time = this.calcTotalUsageTime()
-        //
-        // var versions = new Set([]);
+        var versions = new Set([]);
 
         return (
             <div className="App">
 
-            <TimesUsed pass={this.state.records_lst.length}/>
+                <TimesUsed pass={this.state.records_lst.length} />
 
-            <TotUsageTime pass={this.state.records_lst}/>
+                <TotUsageTime pass={this.state.records_lst} />
 
-            <br/>
+                <br />
 
-            {/* Set up initial graph which just tells how many times the toolbox has been used */}
-            {/* Render the graph only when the app has fetched the data from the server! */}
-            {this.state.records_lst.length ? (
-                <BarGraph
-                    label1={'Toolbox - whole'}
-                    label2={'tu-ma'}
-                    textTitle={'Just a Test'}
-                    countUsed={this.state.records_lst.length}
-                />
-            ) : (
-                "Fetching Data from server..."
-            )}
+                {/* Pass all JSON to graph */}
+                {this.state.records_lst.length ? (
+                    <BarGraph culo={this.state.records_lst} />
+                ) : (
+                        "Fetching Data from server..."
+                    )}
 
-            {/* {this.state.records_lst.map(function(lst, i) {
-                versions.add(lst.revitversion)
-            })}
-
-            {Array.from(versions).map(function(lst, i) {
-                return <p key={i}>{lst}</p>
-            })} */}
-        </div>);
+            </div>);
     }
 }
 
@@ -85,22 +68,24 @@ class TotUsageTime extends Component {
     }
 
     calcTotalUsageTime() {
-    // Calculates the time in milliseconds
-    let total_usage_time = 0;
+        // Calculates the time in milliseconds
+        let total_usage_time = 0;
 
-    {this.props.pass.map(function(lst, i) {
-        let start = new Date(Date.parse(lst.start));
-        let end = new Date(Date.parse(lst.end));
-        total_usage_time += end - start
-    })};
+        {
+            this.props.pass.map(function (lst, i) {
+                let start = new Date(Date.parse(lst.start));
+                let end = new Date(Date.parse(lst.end));
+                total_usage_time += end - start
+            })
+        };
 
-    return total_usage_time / 1000;
+        return total_usage_time / 1000;
     }
 
     render() {
         var usage_time = this.calcTotalUsageTime();
 
-        return(
+        return (
             <div>
                 <h1>For a total run time of {usage_time.toFixed(2)} seconds...</h1>
                 <h3>or {(usage_time / 60 / 60).toFixed(2)} hours...</h3>
