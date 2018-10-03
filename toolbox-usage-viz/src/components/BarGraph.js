@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Bar } from 'react-chartjs-2';
-import {HorizontalBar} from 'react-chartjs-2';
+import { HorizontalBar } from 'react-chartjs-2';
 import _ from 'lodash';
 
 class BarGraph extends Component {
@@ -34,75 +34,20 @@ class BarGraph extends Component {
         height: 50,
     }
 
-    byVersion = () => {
-        var versions = [];
+    filterBy = field => {
+        var arr = [];
         {
-            this.props.recs.map(function (lst, i) {
-                versions.push(lst.revitversion);
+            this.props.recs.map(function (lst) {
+                arr.push(lst[field]);
             });
         }
-        // Create object that counts occurrencies
-        var count = _.countBy(versions);
-
-        //Create copy of state object
-        var chartDataCP = Object.assign({}, this.state.chartData);
-
-        // Update values
-        chartDataCP.labels = Object.keys(count);
-        chartDataCP.datasets = [{
-            // Keep all the values the same
-            ...this.state.chartData.datasets[0],
-            // Apart from the data...change the data
-            data: Object.values(count)
-        }];
-
-        // Update state to updated values
-        this.setState({
-            chartData: chartDataCP
-        })
-    }
-
-    byTool = () => {
-        var tools = [];
-        {
-            this.props.recs.map(function (lst, i) {
-                tools.push(lst.tool);
-            });
-        }
-        // Create object that counts occurrencies
-        var count = _.countBy(tools);
-
-        //Create copy of state object
-        var chartDataCP = Object.assign({}, this.state.chartData);
-
-        // Update values
-        chartDataCP.labels = Object.keys(count);
-        chartDataCP.datasets = [{
-            // Keep all the values the same
-            ...this.state.chartData.datasets[0],
-            // Apart from the data...change the data
-            data: Object.values(count)
-        }];
-
-        // Update state to updated values
-        this.setState({
-            chartData: chartDataCP
-        })
-    }
-
-    byUser = () => {
-        var users = [];
-        {
-            this.props.recs.map(function (lst, i) {
-                users.push(lst.user);
-            });
-        }
-        // users.sort();
 
         // Create object that counts occurrencies
-        var count = _.countBy(users);
-        // And sort by key
-        var sorted = _.sortBy(count, Object.values(count))
+        var count = _.countBy(arr);
+
+        // Sort object to show most used on top
+        // From: https://stackoverflow.com/questions/32349838/lodash-sorting-object-by-values-without-losing-the-key
+        var sorted = _.fromPairs(_.sortBy(_.toPairs(count), 1).reverse())
 
         //Create copy of state object
         var chartDataCP = Object.assign({}, this.state.chartData);
@@ -155,9 +100,9 @@ class BarGraph extends Component {
 
                 {/* <VersionsButton pass={this.props.recs} /> */}
 
-                <button onClick={this.byVersion}>By version</button>
-                <button onClick={this.byTool}>By tool</button>
-                <button onClick={this.byUser}>By user</button>
+                <button onClick={()=>this.filterBy('revitversion')}>By version</button>
+                <button onClick={()=>this.filterBy('tool')}>By tool</button>
+                <button onClick={()=>this.filterBy('user')}>By user</button>
 
             </div>
         )
