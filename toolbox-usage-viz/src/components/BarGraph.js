@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { HorizontalBar } from 'react-chartjs-2';
 import _ from 'lodash';
+import { Button, ButtonGroup } from 'reactstrap';
 
 class BarGraph extends Component {
     constructor(props) {
@@ -13,8 +14,8 @@ class BarGraph extends Component {
                     {
                         label: 'number of uses',
                         backgroundColor: 'rgba(255,128,0,0.3)',
-                        borderColor: 'rgba(128,128,128,1)',
-                        borderWidth: 1,
+                        borderColor: 'rgba(128,128,128,0.8)',
+                        borderWidth: 2,
                         hoverBackgroundColor: 'rgba(255,128,0,0.6)',
                         hoverBorderColor: 'rgba(128,128,128,1)',
                         data: [this.props.recs.length]
@@ -67,6 +68,10 @@ class BarGraph extends Component {
         })
     }
 
+    readDate = () => {
+
+    }
+
     render() {
         return (
             <div className="chart">
@@ -100,10 +105,15 @@ class BarGraph extends Component {
 
                 {/* <VersionsButton pass={this.props.recs} /> */}
 
-                <button onClick={()=>this.filterBy('revitversion')}>By version</button>
-                <button onClick={()=>this.filterBy('tool')}>By tool</button>
-                <button onClick={()=>this.filterBy('user')}>By user</button>
-
+                <ButtonGroup>
+                    <Button outline color="secondary" onClick={() => this.filterBy('revitversion')}>
+                        By version</Button>{' '}
+                    <Button outline color="secondary" onClick={() => this.filterBy('tool')}>
+                        By tool</Button>{' '}
+                    <Button outline color="secondary" onClick={() => this.filterBy('user')}>
+                        By user</Button>{' '}
+                </ButtonGroup>
+                <br />
             </div>
         )
     }

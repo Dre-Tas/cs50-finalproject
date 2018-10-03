@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import BarGraph from './components/BarGraph';
-import moment from 'moment';
-import { Bar } from 'react-chartjs-2';
+import { Jumbotron, Container } from 'reactstrap';
 
 class App extends Component {
     constructor() {
@@ -33,9 +32,15 @@ class App extends Component {
         return (
             <div className="App">
 
-                <TimesUsed pass={this.state.records_lst.length} />
+                <Jumbotron fluid>
+                    <Container fluid>
+                        <TotUsageTime pass={this.state.records_lst} />
 
-                <TotUsageTime pass={this.state.records_lst} />
+                        <hr className="my-2" />
+
+                        <TimesUsed pass={this.state.records_lst.length} />
+                    </Container>
+                </Jumbotron>
 
                 <br />
 
@@ -57,7 +62,7 @@ class TimesUsed extends Component {
 
     render() {
         return (
-            <h2>Willow.Design() has been used {this.props.pass} times!</h2>
+            <h1 className="display-4">It has been used {this.props.pass} times!</h1>
         );
     }
 }
@@ -79,7 +84,7 @@ class TotUsageTime extends Component {
             })
         };
 
-        return total_usage_time / 1000;
+        return total_usage_time / 1000 / 60 / 60;
     }
 
     render() {
@@ -87,8 +92,10 @@ class TotUsageTime extends Component {
 
         return (
             <div>
-                <h1>For a total run time of {usage_time.toFixed(2)} seconds...</h1>
-                <h3>or {(usage_time / 60 / 60).toFixed(2)} hours...</h3>
+                <h1 className="display-4">Willow.Design() has saved <strong>{(usage_time).toFixed(2)} hours*</strong> from my latest calculations!</h1>
+                <p>Happy days!</p>
+                <p>* this right now is not really the time that has been saved,
+                    but the time the ttolbox has been running</p>
             </div>
         )
     }
