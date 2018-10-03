@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { HorizontalBar } from 'react-chartjs-2';
+import moment from 'moment';
 import _ from 'lodash';
 import { Button, ButtonGroup } from 'reactstrap';
 
@@ -68,8 +69,80 @@ class BarGraph extends Component {
         })
     }
 
-    readDate = () => {
+    filtDate = () => {
+        var starts = [];
+        {
+            this.props.recs.map(function (lst) {
+                starts.push(new Date(lst['start']).toISOString().split('T')[0]);
+            });
+        }
 
+        var count = _.countBy(starts);
+
+        var sorted = _.fromPairs(_.sortBy(_.toPairs(count), 1).reverse())
+
+        //Create copy of state object
+        var chartDataCP = Object.assign({}, this.state.chartData);
+
+        // Update values
+        chartDataCP.labels = Object.keys(sorted);
+        chartDataCP.datasets = [{
+            // Keep all the values the same
+            ...this.state.chartData.datasets[0],
+            // Apart from the data...change the data
+            data: Object.values(sorted)
+        }];
+
+        // Update state to updated values
+        this.setState({
+            chartData: chartDataCP
+        })
+    }
+
+    filtMonth = () => {
+        var starts = [];
+        {
+            this.props.recs.map(function (lst) {
+                starts.push(new Date(lst['start']).toISOString().split('-')[1]);
+            });
+        }
+
+        var count = _.countBy(starts);
+
+        var sorted = _.fromPairs(_.sortBy(_.toPairs(count), 1).reverse())
+
+        //Create copy of state object
+        var chartDataCP = Object.assign({}, this.state.chartData);
+
+        // Months
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        var months = [];
+
+        // Date's number to month name
+        (Object.keys(sorted)).forEach(function(el) {
+                months.push(monthNames[(parseInt(el)-1)]);
+            });
+
+        console.log(monthNames[parseInt(Object.keys(sorted))]);
+        console.log(months);
+        console.log((Object.keys(sorted)));
+
+        // Update values
+        chartDataCP.labels = months;
+        chartDataCP.datasets = [{
+            // Keep all the values the same
+            ...this.state.chartData.datasets[0],
+            // Apart from the data...change the data
+            data: Object.values(sorted)
+        }];
+
+        // Update state to updated values
+        this.setState({
+            chartData: chartDataCP
+        })
     }
 
     render() {
@@ -106,14 +179,19 @@ class BarGraph extends Component {
                 {/* <VersionsButton pass={this.props.recs} /> */}
 
                 <ButtonGroup>
+
                     <Button outline color="secondary" onClick={() => this.filterBy('revitversion')}>
-                        By version</Button>{' '}
+                        By version</Button>
                     <Button outline color="secondary" onClick={() => this.filterBy('tool')}>
-                        By tool</Button>{' '}
+                        By tool</Button>
                     <Button outline color="secondary" onClick={() => this.filterBy('user')}>
-                        By user</Button>{' '}
+                        By user</Button>
+                    <Button outline color="secondary" onClick={this.filtDate}>
+                        By date</Button>
+                    <Button outline color="secondary" onClick={this.filtMonth}>
+                        By month</Button>
+
                 </ButtonGroup>
-                <br />
             </div>
         )
     }

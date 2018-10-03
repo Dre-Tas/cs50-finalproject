@@ -40,7 +40,7 @@ class App extends Component {
 
                         <TimesUsed pass={this.state.records_lst.length} />
                     </Container>
-                </Jumbotron>
+                </Jumbotron> 
 
                 <br />
 
@@ -62,7 +62,7 @@ class TimesUsed extends Component {
 
     render() {
         return (
-            <h1 className="display-4">It has been used {this.props.pass} times!</h1>
+            <h3 className="display-5">It has been used {this.props.pass} times!</h3>
         );
     }
 }
