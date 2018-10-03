@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Bar } from 'react-chartjs-2';
+import {HorizontalBar} from 'react-chartjs-2';
 import _ from 'lodash';
 
 class BarGraph extends Component {
@@ -7,15 +8,15 @@ class BarGraph extends Component {
         super(props);
         this.state = {
             chartData: {
-                labels: ['toolbox'],
+                labels: ['Toolbox (whole)'],
                 datasets: [
                     {
-                        // label: ['# of uses'],
-                        backgroundColor: 'rgba(255,99,132,0.2)',
-                        borderColor: 'rgba(255,99,132,1)',
+                        label: 'number of uses',
+                        backgroundColor: 'rgba(255,128,0,0.3)',
+                        borderColor: 'rgba(128,128,128,1)',
                         borderWidth: 1,
-                        hoverBackgroundColor: 'rgba(255,99,132,0.4)',
-                        hoverBorderColor: 'rgba(255,99,132,1)',
+                        hoverBackgroundColor: 'rgba(255,128,0,0.6)',
+                        hoverBorderColor: 'rgba(128,128,128,1)',
                         data: [this.props.recs.length]
                     }
                 ]
@@ -26,7 +27,7 @@ class BarGraph extends Component {
     static defaultProps = {
         // You can override these props if you set them from the App
         displayTitle: true,
-        // displayLegend: true,
+        displayLegend: true,
         legendPosition: 'bottom',
         fontSize: 20,
         width: 100,
@@ -34,35 +35,104 @@ class BarGraph extends Component {
     }
 
     byVersion = () => {
-        var arrVers = [];
+        var versions = [];
         {
             this.props.recs.map(function (lst, i) {
-                arrVers.push(lst.revitversion);
+                versions.push(lst.revitversion);
             });
         }
+        // Create object that counts occurrencies
+        var count = _.countBy(versions);
 
-        var count = _.countBy(arrVers);
+        //Create copy of state object
+        var chartDataCP = Object.assign({}, this.state.chartData);
 
+        // Update values
+        chartDataCP.labels = Object.keys(count);
+        chartDataCP.datasets = [{
+            // Keep all the values the same
+            ...this.state.chartData.datasets[0],
+            // Apart from the data...change the data
+            data: Object.values(count)
+        }];
+
+        // Update state to updated values
         this.setState({
-            chartData: {
-                labels: Object.keys(count),
-                datasets: [{ data: Object.values(count) }]
-            }
+            chartData: chartDataCP
         })
     }
 
+    byTool = () => {
+        var tools = [];
+        {
+            this.props.recs.map(function (lst, i) {
+                tools.push(lst.tool);
+            });
+        }
+        // Create object that counts occurrencies
+        var count = _.countBy(tools);
+
+        //Create copy of state object
+        var chartDataCP = Object.assign({}, this.state.chartData);
+
+        // Update values
+        chartDataCP.labels = Object.keys(count);
+        chartDataCP.datasets = [{
+            // Keep all the values the same
+            ...this.state.chartData.datasets[0],
+            // Apart from the data...change the data
+            data: Object.values(count)
+        }];
+
+        // Update state to updated values
+        this.setState({
+            chartData: chartDataCP
+        })
+    }
+
+    byUser = () => {
+        var users = [];
+        {
+            this.props.recs.map(function (lst, i) {
+                users.push(lst.user);
+            });
+        }
+        // users.sort();
+
+        // Create object that counts occurrencies
+        var count = _.countBy(users);
+        // And sort by key
+        var sorted = _.sortBy(count, Object.values(count))
+
+        //Create copy of state object
+        var chartDataCP = Object.assign({}, this.state.chartData);
+
+        // Update values
+        chartDataCP.labels = Object.keys(sorted);
+        chartDataCP.datasets = [{
+            // Keep all the values the same
+            ...this.state.chartData.datasets[0],
+            // Apart from the data...change the data
+            data: Object.values(sorted)
+        }];
+
+        // Update state to updated values
+        this.setState({
+            chartData: chartDataCP
+        })
+    }
 
     render() {
         return (
             <div className="chart">
-                <Bar
+                <HorizontalBar
                     data={this.state.chartData}
                     width={this.props.width}
                     height={this.props.height}
                     options={{
                         title: {
                             display: this.props.displayTitle,
-                            text: 'How many times has it been used?',
+                            text: 'How many times has the toolbox been used?',
                             fontSize: this.props.fontSize
                         },
                         legend: {
@@ -70,15 +140,13 @@ class BarGraph extends Component {
                             position: this.props.legendPosition
                         },
                         scales: {
-                            yAxes: [{
-                                display: true,
+                            xAxes: [{
                                 ticks: {
                                     suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
                                     suggestedMax: this.props.recs.length,
                                 }
                             }],
-                            xAxes: [{
-                                // barThickness : 150
+                            yAxes: [{
                                 barPercentage: 0.5
                             }]
                         }
@@ -88,6 +156,8 @@ class BarGraph extends Component {
                 {/* <VersionsButton pass={this.props.recs} /> */}
 
                 <button onClick={this.byVersion}>By version</button>
+                <button onClick={this.byTool}>By tool</button>
+                <button onClick={this.byUser}>By user</button>
 
             </div>
         )
