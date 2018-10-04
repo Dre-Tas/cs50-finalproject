@@ -1,0 +1,32 @@
+{
+    "DeleteUnusedViews": {
+      "Code": "DeleteUnusedViews",
+      "Tool": "Delete Unused Views",
+      "Time": 10,
+      "Size": 1
+    },
+    "DeleteUnusedSchedules": {
+      "Code": "DeleteUnusedSchedules",
+      "Tool": "Delete Unused Schedules",
+      "Time": 10,
+      "Size": 1
+    },
+    "DeleteUnusedLegends": {
+      "Code": "DeleteUnusedLegends",
+      "Tool": "Delete Unused Legends",
+      "Time": 10,
+      "Size": 1
+    },
+    "DeleteUnusedViewTemplates": {
+      "Code": "DeleteUnusedViewTemplates",
+      "Tool": "Delete Unused Templates",
+      "Time": 10,
+      "Size": 1
+    },
+    "DeleteUnusedFilters": {
+      "Code": "DeleteUnusedFilters",
+      "Tool": "Delete Unused Filters",
+      "Time": 10,
+      "Size": 1
+    }
+  }

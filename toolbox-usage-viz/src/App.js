@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import BarGraph from './components/BarGraph';
-import { Jumbotron, Container } from 'reactstrap';
+import { Jumbotron, Container, Badge } from 'reactstrap';
+import man_proc from './ManualProcess.json';
 
 class App extends Component {
     constructor() {
         super();
         this.state = {
             records_lst: [],
+            man_process: man_proc,
         };
     }
 
@@ -17,7 +18,7 @@ class App extends Component {
     }
 
     fetchData() {
-        let data = fetch('http://127.0.0.1:5000/api/dbrecords')
+        fetch('http://127.0.0.1:5000/api/dbrecords')
             .then(response => response.json())
             .then((data) => {
                 this.setState({
@@ -26,23 +27,27 @@ class App extends Component {
             });
     }
 
-    render() {
-        var versions = new Set([]);
 
+    timeSaved = () => {
+        console.log(this.state.man_process)
+    }
+
+    render() {
         return (
             <div className="App">
 
+                <button onClick={this.timeSaved}>Test</button>
+
                 <Jumbotron fluid>
-                    <Container fluid>
+                    <Container className="container" fluid>
                         <TotUsageTime pass={this.state.records_lst} />
 
                         <hr className="my-2" />
 
                         <TimesUsed pass={this.state.records_lst.length} />
                     </Container>
-                </Jumbotron> 
+                </Jumbotron>
 
-                <br />
 
                 {/* Pass all JSON to graph */}
                 {this.state.records_lst.length ? (
@@ -92,10 +97,12 @@ class TotUsageTime extends Component {
 
         return (
             <div>
-                <h1 className="display-4">Willow.Design() has saved <strong>{(usage_time).toFixed(2)} hours*</strong> from my latest calculations!</h1>
+                <h1 className="display-4">Willow.Design()
+                has saved <Badge color="info" pill>{(usage_time).toFixed(2)} hours</Badge>
+                    * from my latest calculations!</h1>
                 <p>Happy days!</p>
                 <p>* this right now is not really the time that has been saved,
-                    but the time the ttolbox has been running</p>
+                    but the time the toolbox has been running</p>
             </div>
         )
     }

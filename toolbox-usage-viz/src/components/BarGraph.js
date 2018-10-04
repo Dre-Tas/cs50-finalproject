@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import { Bar } from 'react-chartjs-2';
+import { defaults } from 'react-chartjs-2';
 import { HorizontalBar } from 'react-chartjs-2';
 import moment from 'moment';
 import _ from 'lodash';
 import { Button, ButtonGroup } from 'reactstrap';
+
+defaults.global.defaultFontFamily = 'CircularStd'
 
 class BarGraph extends Component {
     constructor(props) {
@@ -22,7 +24,8 @@ class BarGraph extends Component {
                         data: [this.props.recs.length]
                     }
                 ]
-            }
+            },
+            
         }
     }
 
@@ -119,16 +122,13 @@ class BarGraph extends Component {
             "July", "August", "September", "October", "November", "December"
         ];
 
+        // Variable to hold the translation between month's number and name
         var months = [];
 
         // Date's number to month name
-        (Object.keys(sorted)).forEach(function(el) {
-                months.push(monthNames[(parseInt(el)-1)]);
-            });
-
-        console.log(monthNames[parseInt(Object.keys(sorted))]);
-        console.log(months);
-        console.log((Object.keys(sorted)));
+        (Object.keys(sorted)).forEach(function (el) {
+            months.push(monthNames[(parseInt(el) - 1)]);
+        });
 
         // Update values
         chartDataCP.labels = months;
@@ -148,6 +148,21 @@ class BarGraph extends Component {
     render() {
         return (
             <div className="chart">
+
+                <ButtonGroup>
+                    <Button outline color="secondary" onClick={() => this.filterBy('revitversion')}>
+                        By version</Button>
+                    <Button outline color="secondary" onClick={() => this.filterBy('tool')}>
+                        By tool</Button>
+                    <Button outline color="secondary" onClick={() => this.filterBy('user')}>
+                        By user</Button>
+                    <Button outline color="secondary" onClick={this.filtDate}>
+                        By date</Button>
+                    <Button outline color="secondary" onClick={this.filtMonth}>
+                        By month</Button>
+                </ButtonGroup>
+
+
                 <HorizontalBar
                     data={this.state.chartData}
                     width={this.props.width}
@@ -172,26 +187,22 @@ class BarGraph extends Component {
                             yAxes: [{
                                 barPercentage: 0.5
                             }]
+                        },
+                        animation: {
+                            easing: 'easeOutCubic'
+                        },
+                        layout: {
+                            padding: {
+                                left: 10,
+                                right: 25,
+                                top: 0,
+                                bottom: 10
+                            }
                         }
                     }}
                 />
 
                 {/* <VersionsButton pass={this.props.recs} /> */}
-
-                <ButtonGroup>
-
-                    <Button outline color="secondary" onClick={() => this.filterBy('revitversion')}>
-                        By version</Button>
-                    <Button outline color="secondary" onClick={() => this.filterBy('tool')}>
-                        By tool</Button>
-                    <Button outline color="secondary" onClick={() => this.filterBy('user')}>
-                        By user</Button>
-                    <Button outline color="secondary" onClick={this.filtDate}>
-                        By date</Button>
-                    <Button outline color="secondary" onClick={this.filtMonth}>
-                        By month</Button>
-
-                </ButtonGroup>
             </div>
         )
     }

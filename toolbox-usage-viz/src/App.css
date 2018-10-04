@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  font-family: CircularStd;
 }
 
 .App-logo {
@@ -20,6 +21,10 @@
 
 .App-intro {
   font-size: large;
+}
+
+.container {
+  margin: -3%;
 }
 
 @keyframes App-logo-spin {
