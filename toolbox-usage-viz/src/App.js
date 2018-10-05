@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
-import BarGraph from './components/BarGraph';
+import UsageHBarGraph from './components/HBarGraph';
+import TimeVBarGraph from './components/GBarGraph';
 import { Jumbotron, Container, Badge } from 'reactstrap';
 import man_proc from './ManualProcess.json';
 
@@ -27,17 +28,9 @@ class App extends Component {
             });
     }
 
-
-    timeSaved = () => {
-        console.log(this.state.man_process)
-    }
-
     render() {
         return (
             <div className="App">
-
-                <button onClick={this.timeSaved}>Test</button>
-
                 <Jumbotron fluid>
                     <Container className="container" fluid>
                         <TotUsageTime pass={this.state.records_lst} />
@@ -48,10 +41,16 @@ class App extends Component {
                     </Container>
                 </Jumbotron>
 
+                {this.state.records_lst.length ? (
+                    <TimeVBarGraph recs={this.state.records_lst} baseline={this.state.man_process} />
+                ) : (
+                        "Fetching Data from server..."
+                    )}
+
 
                 {/* Pass all JSON to graph */}
                 {this.state.records_lst.length ? (
-                    <BarGraph recs={this.state.records_lst} />
+                    <UsageHBarGraph recs={this.state.records_lst} />
                 ) : (
                         "Fetching Data from server..."
                     )}
@@ -83,9 +82,13 @@ class TotUsageTime extends Component {
 
         {
             this.props.pass.map(function (lst, i) {
-                let start = new Date(Date.parse(lst.start));
-                let end = new Date(Date.parse(lst.end));
-                total_usage_time += end - start
+                // Temporary mods to see if bar graph is calculating time correctly
+                if (lst.tool === "ExportNWC") {
+                    let start = new Date(Date.parse(lst.start));
+                    let end = new Date(Date.parse(lst.end));
+                    total_usage_time += end - start
+                    console.log('app', total_usage_time);
+                }
             })
         };
 
