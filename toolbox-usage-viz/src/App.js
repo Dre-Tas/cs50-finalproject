@@ -3,6 +3,7 @@ import './App.css';
 import UsageHBarGraph from './components/HBarGraph';
 import TimeVBarGraph from './components/GBarGraph';
 import { Jumbotron, Container, Badge } from 'reactstrap';
+import { BarLoader } from 'react-css-loaders';
 import man_proc from './ManualProcess.json';
 
 class App extends Component {
@@ -52,7 +53,7 @@ class App extends Component {
                 {this.state.records_lst.length ? (
                     <UsageHBarGraph recs={this.state.records_lst} />
                 ) : (
-                        "Fetching Data from server..."
+                        <BarLoader />
                     )}
 
             </div>);
@@ -82,13 +83,9 @@ class TotUsageTime extends Component {
 
         {
             this.props.pass.map(function (lst, i) {
-                // Temporary mods to see if bar graph is calculating time correctly
-                if (lst.tool === "ExportNWC") {
-                    let start = new Date(Date.parse(lst.start));
-                    let end = new Date(Date.parse(lst.end));
-                    total_usage_time += end - start
-                    console.log('app', total_usage_time);
-                }
+                let start = new Date(Date.parse(lst.start));
+                let end = new Date(Date.parse(lst.end));
+                total_usage_time += end - start
             })
         };
 

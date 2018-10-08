@@ -14,7 +14,8 @@ class TimeVBarGraph extends Component {
             chartData: {
                 labels: [
                     this.props.baseline.DeleteUnusedViews.Tool,
-                    this.props.baseline.DeleteUnusedViewTemplates.Tool
+                    this.props.baseline.DeleteUnusedViewTemplates.Tool,
+                    this.props.baseline["DeleteUnusedFilters"].Tool
                 ],
                 datasets: [
                     {
@@ -45,26 +46,10 @@ class TimeVBarGraph extends Component {
     }
 
     componentDidMount() {
-        this.countToolSize();
+        this.setChartData();
     }
 
-    countToolSize() {
-        // var arr1 = [];
-        // {
-        //     this.props.recs.map(function (lst) {
-        //         arr1.push([lst['tool'], lst['size']]);
-        //     });
-        // }
-        // console.log(arr1)
-
-        // // Create object that counts occurrencies
-        // // https://stackoverflow.com/questions/31688459/group-array-items-using-object
-        // var tootlTotSize = this.props.recs.reduce(function (obj, item) {
-        //     obj[item.tool] = obj[item.tool] || [];
-        //     obj[item.tool].push(item.size);
-        //     return obj;
-        // }, {});
-
+    countToolSizeTime() {
         // Create object by counting cumulative size of all the tools
         // https://stackoverflow.com/questions/29364262/how-to-group-by-and-sum-array-of-object-in-jquery
         var tootlTotSize = [];
@@ -73,8 +58,6 @@ class TimeVBarGraph extends Component {
                 res[value.tool] = {
                     totSize: 0,
                     tool: value.tool,
-                    start: value.start,
-                    end: value.end,
                     runTime: 0
                 };
                 tootlTotSize.push(res[value.tool])
@@ -89,9 +72,24 @@ class TimeVBarGraph extends Component {
             return res
         }, {});
 
-        console.log('toolTotSize', tootlTotSize);
+        return tootlTotSize;
+    }
+
+    getUnitTime(toolName) {
+        let toolObj = this.countToolSizeTime().filter(val => val.tool === toolName)[0];
+        // Get unit time in seconds
+        let unitTime = (toolObj.runTime / toolObj.totSize / 1000).toFixed(3);
+
+        return unitTime;
+    }
+
+    setChartData() {
         //Create copy of state object
         var chartDataCP = Object.assign({}, this.state.chartData);
+
+        console.log('a', this.countToolSizeTime());
+        // console.log('b', this.countToolSizeTime().filter(val => val.tool === "DeleteUnusedViews"));
+        console.log('c', this.getUnitTime("DeleteUnusedViews"))
 
         chartDataCP.datasets = [
             // Keep first object (Manual) of datasets untouched
@@ -100,12 +98,16 @@ class TimeVBarGraph extends Component {
                 // Keep all the values the same
                 ...this.state.chartData.datasets[1],
                 // Apart from the data...change the data
-                data: [4, 4]
+                data: [
+                    this.getUnitTime("DeleteUnusedViews"),
+                    this.getUnitTime("DeleteUnusedViewTemplates"),
+                    this.getUnitTime("DeleteUnusedFilters")]
             }];
 
         this.setState({
             chartData: chartDataCP
         })
+
     }
 
     static defaultProps = {
@@ -263,9 +265,23 @@ class TimeVBarGraph extends Component {
 
                             }],
                             yAxes: [{
+                                type: 'logarithmic',
                                 ticks: {
+                                    autoSkip: true,
                                     suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
                                     suggestedMax: this.props.recs.length,
+                                    // https://stackoverflow.com/questions/50968672/how-to-create-a-custom-logarithmic-axis-in-chart-js
+                                    callback: function (value) {
+                                        if (value == 1 ||
+                                            value == 2 ||
+                                            value == 3 ||
+                                            value == 4 ||
+                                            value == 5 ||
+                                            value == 10 ||
+                                            value == 20) {
+                                            return value;
+                                        }
+                                    }
                                 }
 
                             }]
