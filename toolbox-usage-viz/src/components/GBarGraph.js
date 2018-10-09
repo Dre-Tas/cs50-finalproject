@@ -97,7 +97,7 @@ class TimeVBarGraph extends Component {
 
     setChartData() {
         let arrCodesAuto = [];
-        this.countToolSizeTime().map(x =>arrCodesAuto.push(x.tool))
+        this.countToolSizeTime().map(obj =>arrCodesAuto.push(obj.tool))
 
         console.log(this.countToolSizeTime())
 
@@ -134,7 +134,7 @@ class TimeVBarGraph extends Component {
         legendPosition: 'bottom',
         fontSize: 20,
         width: 100,
-        height: 50,
+        height: window.innerHeight * 0.9,
     }
 
     // filterBy = field => {
@@ -267,9 +267,11 @@ class TimeVBarGraph extends Component {
                     width={this.props.width}
                     height={this.props.height}
                     options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
                         title: {
                             display: this.props.displayTitle,
-                            text: 'How many times has the toolbox been used?',
+                            text: 'How much time is toolbox being saving?',
                             fontSize: this.props.fontSize
                         },
                         legend: {
@@ -296,16 +298,16 @@ class TimeVBarGraph extends Component {
                                     suggestedMax: 500,
                                     // https://stackoverflow.com/questions/50968672/how-to-create-a-custom-logarithmic-axis-in-chart-js
                                     callback: function (value) {
-                                        if (value == 1 ||
-                                            value == 2 ||
-                                            value == 3 ||
-                                            value == 4 ||
-                                            value == 5 ||
-                                            value == 10 ||
-                                            value == 50 ||
-                                            value == 100 ||
-                                            value == 250 ||
-                                            value == 500) {
+                                        if (value === 1 ||
+                                            value === 2 ||
+                                            value === 3 ||
+                                            value === 4 ||
+                                            value === 5 ||
+                                            value === 10 ||
+                                            value === 50 ||
+                                            value === 100 ||
+                                            value === 250 ||
+                                            value === 500) {
                                             return value + " sec";
                                         }
                                     }
@@ -326,6 +328,10 @@ class TimeVBarGraph extends Component {
                         }
                     }}
                 />
+
+                <p>
+                    
+                </p>
             </div>
         )
     }
