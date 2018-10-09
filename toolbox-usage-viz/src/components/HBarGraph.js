@@ -7,7 +7,7 @@ import { Button, ButtonGroup } from 'reactstrap';
 
 defaults.global.defaultFontFamily = 'CircularStd'
 
-class BarGraph extends Component {
+class UsageHBarGraph extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -201,61 +201,9 @@ class BarGraph extends Component {
                         }
                     }}
                 />
-
-                {/* <VersionsButton pass={this.props.recs} /> */}
             </div>
         )
     }
 }
 
-// class VersionsButton extends Component {
-//     constructor(props) {
-//         super(props);
-//     }
-
-//     getVersions() {
-//         var versions = new Set([]);
-
-//         {
-//             this.props.pass.map(function (lst) {
-//                 versions.add(lst.revitversion)
-//             })
-//         }
-//         return versions;
-//     }
-
-//     splitVers() {
-//         var arrVers = [];
-//         {
-//             this.props.pass.map(function (lst, i) {
-//                 arrVers.push(lst.revitversion);
-//             });
-//         }
-
-//         var count = _.countBy(arrVers);
-
-//         this.setState({
-//             chartData: {
-//                 labels: Object.keys(count),
-//                 datasets: [{ data: Object.values(count) }]
-//             }
-//         })
-//     }
-
-//     render() {
-//         return (
-//             <div>
-//                 <button onClick={this.splitVers()}>Split by version</button>
-
-//                 <ul>
-//                     {Array.from(this.getVersions()).map(function (lst, i) {
-//                         return <li key={i}>{lst}</li>
-//                     })}
-//                 </ul>
-//             </div>
-//         )
-//     }
-// }
-
-
-export default BarGraph;
+export default UsageHBarGraph;

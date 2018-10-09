@@ -1,32 +1,80 @@
 {
-    "DeleteUnusedViews": {
-      "Code": "DeleteUnusedViews",
-      "Tool": "Delete Unused Views",
-      "Time": 10,
-      "Size": 1
-    },
-    "DeleteUnusedSchedules": {
-      "Code": "DeleteUnusedSchedules",
-      "Tool": "Delete Unused Schedules",
-      "Time": 10,
-      "Size": 1
-    },
-    "DeleteUnusedLegends": {
-      "Code": "DeleteUnusedLegends",
-      "Tool": "Delete Unused Legends",
-      "Time": 10,
-      "Size": 1
-    },
-    "DeleteUnusedViewTemplates": {
-      "Code": "DeleteUnusedViewTemplates",
-      "Tool": "Delete Unused Templates",
-      "Time": 10,
-      "Size": 1
-    },
-    "DeleteUnusedFilters": {
-      "Code": "DeleteUnusedFilters",
-      "Tool": "Delete Unused Filters",
-      "Time": 10,
-      "Size": 1
-    }
+  "LinkRVT": {
+    "Code": "LinkRVT",
+    "Tool": "Batch-Link RVT Files",
+    "Time": 15,
+    "Size": 1
+  },
+  "LinkCAD": {
+    "Code": "LinkCAD",
+    "Tool": "Batch-Link CAD Files",
+    "Time": 10,
+    "Size": 1
+  },
+  "ReloadRVT": {
+    "Code": "ReloadRVT",
+    "Tool": "Reload From... Multiple",
+    "Time": 10,
+    "Size": 1
+  },
+  "PackageModels": {
+    "Code": "PackageModels",
+    "Tool": "Package Models for Issuing",
+    "Time": 10,
+    "Size": 1
+  },
+  "UpgradeRVTVersion": {
+    "Code": "UpgradeRVTVersion",
+    "Tool": "Upgrade Version",
+    "Time": 10,
+    "Size": 1
+  },
+  "DeleteUnusedViews": {
+    "Code": "DeleteUnusedViews",
+    "Tool": "Delete Unused Views",
+    "Time": 16,
+    "Size": 1
+  },
+  "DeleteUnusedSchedules": {
+    "Code": "DeleteUnusedSchedules",
+    "Tool": "Delete Unused Schedules",
+    "Time": 10,
+    "Size": 1
+  },
+  "DeleteUnusedLegends": {
+    "Code": "DeleteUnusedLegends",
+    "Tool": "Delete Unused Legends",
+    "Time": 10,
+    "Size": 1
+  },
+  "DeleteUnusedViewTemplates": {
+    "Code": "DeleteUnusedViewTemplates",
+    "Tool": "Delete Unused Templates",
+    "Time": 12,
+    "Size": 1
+  },
+  "DeleteUnusedFilters": {
+    "Code": "DeleteUnusedFilters",
+    "Tool": "Delete Unused Filters",
+    "Time": 10,
+    "Size": 1
+  },
+  "DeleteUnusedLinePatterns": {
+    "Code": "DeleteUnusedLinePatterns",
+    "Tool": "Delete Unused Line Patterns",
+    "Time": 10,
+    "Size": 1
+  },
+  "ExportFBX": {
+    "Code": "ExportFBX",
+    "Tool": "Export to FBX",
+    "Time": 10,
+    "Size": 1
+  },
+  "ExportNWC": {
+    "Code": "ExportNWC",
+    "Tool": "Export to NWC",
+    "Time": 250,
+    "Size": 1
   }
+}
