@@ -45,9 +45,10 @@ class App extends Component {
                 {this.state.records_lst.length ? (
                     <TimeVBarGraph recs={this.state.records_lst} baseline={this.state.man_process} />
                 ) : (
-                        "Fetching Data from server..."
+                    <BarLoader />
                     )}
 
+                    <hr className="my-2" />
 
                 {/* Pass all JSON to graph */}
                 {this.state.records_lst.length ? (

@@ -2,7 +2,7 @@
   "LinkRVT": {
     "Code": "LinkRVT",
     "Tool": "Batch-Link RVT Files",
-    "Time": 10,
+    "Time": 15,
     "Size": 1
   },
   "LinkCAD": {
@@ -32,7 +32,7 @@
   "DeleteUnusedViews": {
     "Code": "DeleteUnusedViews",
     "Tool": "Delete Unused Views",
-    "Time": 10,
+    "Time": 16,
     "Size": 1
   },
   "DeleteUnusedSchedules": {
@@ -50,12 +50,18 @@
   "DeleteUnusedViewTemplates": {
     "Code": "DeleteUnusedViewTemplates",
     "Tool": "Delete Unused Templates",
-    "Time": 10,
+    "Time": 12,
     "Size": 1
   },
   "DeleteUnusedFilters": {
     "Code": "DeleteUnusedFilters",
     "Tool": "Delete Unused Filters",
+    "Time": 10,
+    "Size": 1
+  },
+  "DeleteUnusedLinePatterns": {
+    "Code": "DeleteUnusedLinePatterns",
+    "Tool": "Delete Unused Line Patterns",
     "Time": 10,
     "Size": 1
   },
@@ -68,7 +74,7 @@
   "ExportNWC": {
     "Code": "ExportNWC",
     "Tool": "Export to NWC",
-    "Time": 10,
+    "Time": 250,
     "Size": 1
   }
 }

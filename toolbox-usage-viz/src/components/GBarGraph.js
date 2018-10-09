@@ -12,11 +12,7 @@ class TimeVBarGraph extends Component {
         super(props);
         this.state = {
             chartData: {
-                labels: [
-                    this.props.baseline.DeleteUnusedViews.Tool,
-                    this.props.baseline.DeleteUnusedViewTemplates.Tool,
-                    this.props.baseline["DeleteUnusedFilters"].Tool
-                ],
+                labels: [],
                 datasets: [
                     {
                         label: 'Manual',
@@ -25,10 +21,7 @@ class TimeVBarGraph extends Component {
                         borderWidth: 2,
                         hoverBackgroundColor: 'rgba(255,128,0,0.6)',
                         hoverBorderColor: 'rgba(128,128,128,1)',
-                        data: [
-                            this.props.baseline.DeleteUnusedViews.Time,
-                            this.props.baseline.DeleteUnusedViewTemplates.Time
-                        ]
+                        data: []
                     },
                     {
                         label: 'Toolbox',
@@ -75,39 +68,63 @@ class TimeVBarGraph extends Component {
         return tootlTotSize;
     }
 
-    getUnitTime(toolName) {
-        let toolObj = this.countToolSizeTime().filter(val => val.tool === toolName)[0];
+    getAutoUnitTime(toolCode) {
+        // Get the object - better readability
+        let toolObj = this.countToolSizeTime().filter(val => val.tool === toolCode)[0];
         // Get unit time in seconds
-        let unitTime = (toolObj.runTime / toolObj.totSize / 1000).toFixed(3);
+        if (typeof (toolObj) !== "undefined") {
+            let unitTime = (toolObj.runTime / toolObj.totSize / 1000).toFixed(3);
+            return unitTime;
+        }
+    }
 
-        return unitTime;
+    getManUnitTime(toolCode) {
+        // Get the object - better readability
+        let toolObj = this.props.baseline[toolCode];
+
+        if (typeof (toolObj) !== "undefined") {
+            return toolObj.Time / toolObj.Size;
+        }
+    }
+
+    getToolName(toolCode) {
+        let toolObj = this.props.baseline[toolCode];
+
+        if (typeof (toolObj) !== "undefined") {
+            return toolObj.Tool
+        }
     }
 
     setChartData() {
-        //Create copy of state object
-        var chartDataCP = Object.assign({}, this.state.chartData);
+        let arrCodesAuto = [];
+        this.countToolSizeTime().map(x =>arrCodesAuto.push(x.tool))
 
-        console.log('a', this.countToolSizeTime());
-        // console.log('b', this.countToolSizeTime().filter(val => val.tool === "DeleteUnusedViews"));
-        console.log('c', this.getUnitTime("DeleteUnusedViews"))
+        console.log(this.countToolSizeTime())
 
-        chartDataCP.datasets = [
-            // Keep first object (Manual) of datasets untouched
-            { ...this.state.chartData.datasets[0] },
-            {
-                // Keep all the values the same
-                ...this.state.chartData.datasets[1],
-                // Apart from the data...change the data
-                data: [
-                    this.getUnitTime("DeleteUnusedViews"),
-                    this.getUnitTime("DeleteUnusedViewTemplates"),
-                    this.getUnitTime("DeleteUnusedFilters")]
-            }];
+        let arrCodesMan = Object.keys(this.props.baseline)
 
-        this.setState({
-            chartData: chartDataCP
-        })
+        // Get only elements that are in both arrays
+        // it wouldn't make sense to compare tools that haven't been tested or used
+        let intersection = _.intersection(arrCodesAuto, arrCodesMan)
+        // Which tools have never been used?
+        let difference = _.difference(arrCodesAuto, arrCodesMan)
 
+        let labelNames = [];
+        intersection.map(code => labelNames.push(this.getToolName(code)))
+
+        var manTimes = [];
+        intersection.map(code => manTimes.push(this.getManUnitTime(code)))
+
+        var autoTimes = [];
+        intersection.map(code => autoTimes.push(this.getAutoUnitTime(code)))
+
+        var cDataCopy = { ...this.state.chartData };
+        cDataCopy.labels = labelNames.filter(Boolean);
+        cDataCopy.datasets[{ ...this.state.chartData.datasets[0] }];
+        cDataCopy.datasets[0].data = manTimes.filter(Boolean);
+        cDataCopy.datasets[{ ...this.state.chartData.datasets[1] }];
+        cDataCopy.datasets[1].data = autoTimes.filter(Boolean);
+        this.setState({ chartData: cDataCopy })
     }
 
     static defaultProps = {
@@ -260,16 +277,23 @@ class TimeVBarGraph extends Component {
                             position: this.props.legendPosition
                         },
                         scales: {
-                            xAxes: [{
-                                barPercentage: 0.5
 
+                            xAxes: [{
+                                barPercentage: 0.5,
+                                ticks: {
+                                    minRotation: 90
+                                }
                             }],
                             yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Run Time (logarithmic scale)",
+                                },
                                 type: 'logarithmic',
                                 ticks: {
                                     autoSkip: true,
-                                    suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-                                    suggestedMax: this.props.recs.length,
+                                    min: 0,    // minimum will be 0, unless there is a lower value.
+                                    suggestedMax: 500,
                                     // https://stackoverflow.com/questions/50968672/how-to-create-a-custom-logarithmic-axis-in-chart-js
                                     callback: function (value) {
                                         if (value == 1 ||
@@ -278,8 +302,11 @@ class TimeVBarGraph extends Component {
                                             value == 4 ||
                                             value == 5 ||
                                             value == 10 ||
-                                            value == 20) {
-                                            return value;
+                                            value == 50 ||
+                                            value == 100 ||
+                                            value == 250 ||
+                                            value == 500) {
+                                            return value + " sec";
                                         }
                                     }
                                 }
