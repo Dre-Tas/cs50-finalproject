@@ -10,6 +10,8 @@ class App extends Component {
     constructor() {
         super();
         this.state = {
+            count: 0,
+            unitsavingAuto: [],
             records_lst: [],
             man_process: man_proc,
         };
@@ -17,6 +19,8 @@ class App extends Component {
 
     componentDidMount() {
         this.fetchData();
+        this.fetchCount();
+        this.fetchAuto();
     }
 
     fetchData() {
@@ -25,6 +29,26 @@ class App extends Component {
             .then((data) => {
                 this.setState({
                     records_lst: data,
+                })
+            });
+    }
+
+    fetchCount() {
+        fetch('http://127.0.0.1:5000/api/countdb')
+            .then(response => response.json())
+            .then((count) => {
+                this.setState({
+                    count: count,
+                })
+            });
+    }
+
+    fetchAuto() {
+        fetch('http://127.0.0.1:5000/api/unitsaving')
+            .then(response => response.json())
+            .then((auto) => {
+                this.setState({
+                    unitsavingAuto: auto,
                 })
             });
     }
@@ -38,12 +62,16 @@ class App extends Component {
 
                         <hr className="my-2" />
 
-                        <TimesUsed pass={this.state.records_lst.length} />
+                        {this.state.count ? (
+                        <TimesUsed pass={this.state.count} />
+                        ) : (
+                            <BarLoader />
+                        )}
                     </Container>
                 </Jumbotron>
 
-                {this.state.records_lst.length ? (
-                    <TimeVBarGraph recs={this.state.records_lst} baseline={this.state.man_process} />
+                {this.state.unitsavingAuto.length ? (
+                    <TimeVBarGraph recs={this.state.unitsavingAuto} baseline={this.state.man_process} />
                 ) : (
                     <BarLoader />
                     )}
@@ -98,7 +126,7 @@ class TotUsageTime extends Component {
 
         return (
             <div>
-                <h1 className="display-4">Willow.Design()
+                <h1 className="display-4">The Revit Toolbox
                 has saved <Badge color="info" pill>{(usage_time).toFixed(2)} hours</Badge>
                     * from my latest calculations!</h1>
                 <p>Happy days!</p>

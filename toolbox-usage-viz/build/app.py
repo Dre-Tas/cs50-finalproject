@@ -2,6 +2,11 @@ from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS, cross_origin
+import sys
+import pandas as pd
+from datetime import datetime
+
+
 
 # Set up flask app with CORS
 app = Flask(__name__)
@@ -37,8 +42,8 @@ class RecordSchema(ma.ModelSchema):
 def index():
     return render_template('index.html')
 
-# endpoint / API
 
+# endpoint / API
 
 @app.route('/api/dbrecords')
 def sendRecords():
@@ -46,3 +51,27 @@ def sendRecords():
     records_schema = RecordSchema(many=True)
     output = records_schema.dump(records).data
     return jsonify(output)
+
+
+@app.route('/api/countdb')
+def countdb():
+    count = Record.query.count()
+    return jsonify(count)
+
+
+@app.route('/api/unitsaving')
+def unitsaving():
+    records = Record.query.all()
+    records_schema = RecordSchema(many=True)
+    output = records_schema.dump(records).data
+    # get object that sums total size and total run time, divided by tool
+    # taken from https://stackoverflow.com/questions/38841902/python-sum-values-of-list-of-dictionaries-if-two-other-key-value-pairs-match
+    tools = {d["tool"] for d in output}
+    totSizeTime = [{
+        "tool": tool,
+        "totSize": sum(d["size"] for d in output if d["tool"] == tool),
+        "runTime": int(sum(pd.to_datetime(d["end"]).value/1000000 -
+                        pd.to_datetime(d["start"]).value/1000000
+                       for d in output if d["tool"] == tool))
+    } for tool in tools]
+    return jsonify(totSizeTime)
