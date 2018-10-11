@@ -4,7 +4,6 @@ import UsageHBarGraph from './components/HBarGraph';
 import TimeVBarGraph from './components/GBarGraph';
 import { Jumbotron, Container, Badge } from 'reactstrap';
 import { BarLoader } from 'react-css-loaders';
-import man_proc from './ManualProcess.json';
 
 class App extends Component {
     constructor() {
@@ -14,7 +13,6 @@ class App extends Component {
             unitsavingAuto: [],
             // TO DELETE
             records_lst: [],
-            man_process: man_proc,
             // TO DELETE
         };
     }
@@ -77,7 +75,7 @@ class App extends Component {
                 </Jumbotron>
 
                 {this.state.unitsavingAuto.length ? (
-                    <TimeVBarGraph recs={this.state.unitsavingAuto} baseline={this.state.man_process} />
+                    <TimeVBarGraph recs={this.state.unitsavingAuto} />
                 ) : (
                     <BarLoader />
                     )}
@@ -85,8 +83,8 @@ class App extends Component {
                     <hr className="my-2" />
 
                 {/* Pass all JSON to graph */}
-                {this.state.records_lst.length ? (
-                    <UsageHBarGraph recs={this.state.records_lst} />
+                {this.state.unitsavingAuto.length ? (
+                    <UsageHBarGraph recs={this.state.unitsavingAuto} />
                 ) : (
                         <BarLoader />
                     )}

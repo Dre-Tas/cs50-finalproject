@@ -148,8 +148,7 @@ class UsageHBarGraph extends Component {
     render() {
         return (
             <div className="chart">
-
-                <ButtonGroup>
+                {/* <ButtonGroup>
                     <Button outline color="secondary" onClick={() => this.filterBy('revitversion')}>
                         By version</Button>
                     <Button outline color="secondary" onClick={() => this.filterBy('tool')}>
@@ -160,7 +159,7 @@ class UsageHBarGraph extends Component {
                         By date</Button>
                     <Button outline color="secondary" onClick={this.filtMonth}>
                         By month</Button>
-                </ButtonGroup>
+                </ButtonGroup> */}
 
 
                 <HorizontalBar
