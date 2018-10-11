@@ -12,17 +12,22 @@ class App extends Component {
         this.state = {
             count: 0,
             unitsavingAuto: [],
+            // TO DELETE
             records_lst: [],
             man_process: man_proc,
+            // TO DELETE
         };
     }
 
     componentDidMount() {
+        // TO DELETE
         this.fetchData();
+        // TO DELETE
         this.fetchCount();
-        this.fetchAuto();
+        this.fetchUnitSavings();
     }
 
+    // TO DELETE
     fetchData() {
         fetch('http://127.0.0.1:5000/api/dbrecords')
             .then(response => response.json())
@@ -32,6 +37,7 @@ class App extends Component {
                 })
             });
     }
+    // TO DELETE
 
     fetchCount() {
         fetch('http://127.0.0.1:5000/api/countdb')
@@ -43,7 +49,7 @@ class App extends Component {
             });
     }
 
-    fetchAuto() {
+    fetchUnitSavings() {
         fetch('http://127.0.0.1:5000/api/unitsaving')
             .then(response => response.json())
             .then((auto) => {

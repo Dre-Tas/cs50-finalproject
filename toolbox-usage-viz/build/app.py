@@ -4,8 +4,6 @@ from flask_marshmallow import Marshmallow
 from flask_cors import CORS, cross_origin
 import sys
 import pandas as pd
-from datetime import datetime
-
 
 
 # Set up flask app with CORS
@@ -19,7 +17,7 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 
-# Create db model class
+# Create records table model class
 class Record(db.Model):
     __tablename__ = "records"
     id = db.Column(db.Integer, primary_key=True)
@@ -30,12 +28,23 @@ class Record(db.Model):
     end = db.Column(db.DateTime)
     size = db.Column(db.Integer)
 
-# Create marshmallow schema
+# Create manual table model class
+class Manual(db.Model):
+    __tablename__ = "manual"
+    code = db.Column(db.String, primary_key=True)
+    name = db.Column(db.String)
+    time = db.Column(db.Float)
+    size = db.Column(db.Integer)
 
-
+# Create marshmallow schema for records
 class RecordSchema(ma.ModelSchema):
     class Meta:
         model = Record
+
+# Create marshmallow schema for manual
+class ManualSchema(ma.ModelSchema):
+    class Meta:
+        model = Manual
 
 
 @app.route('/')
@@ -43,7 +52,10 @@ def index():
     return render_template('index.html')
 
 
-# endpoint / API
+# USEFUL TO KEEP
+# print(lst, file=sys.stdout)
+
+# endpoints / APIs
 
 @app.route('/api/dbrecords')
 def sendRecords():
@@ -61,17 +73,84 @@ def countdb():
 
 @app.route('/api/unitsaving')
 def unitsaving():
-    records = Record.query.all()
+    # Query "records" table
+    records = db.session.query(
+        Record.tool,
+        Record.start,
+        Record.end,
+        Record.size
+        )
     records_schema = RecordSchema(many=True)
-    output = records_schema.dump(records).data
-    # get object that sums total size and total run time, divided by tool
+    records_output = records_schema.dump(records).data
+    # reduce to object that sums total size and total run time, divided by tool
     # taken from https://stackoverflow.com/questions/38841902/python-sum-values-of-list-of-dictionaries-if-two-other-key-value-pairs-match
-    tools = {d["tool"] for d in output}
+    # (not the most efficient way, but easier readability)
+    tools = {d["tool"] for d in records_output}
     totSizeTime = [{
         "tool": tool,
-        "totSize": sum(d["size"] for d in output if d["tool"] == tool),
+        "totSize": sum(d["size"] for d in records_output if d["tool"] == tool),
         "runTime": int(sum(pd.to_datetime(d["end"]).value/1000000 -
                         pd.to_datetime(d["start"]).value/1000000
-                       for d in output if d["tool"] == tool))
+                       for d in records_output if d["tool"] == tool))
     } for tool in tools]
-    return jsonify(totSizeTime)
+
+    # Query "manual" table
+    manual = Manual.query.all()
+    manual_schema = ManualSchema(many=True)
+    manual_output = manual_schema.dump(manual).data
+
+    # Get all codes from records and manual tables for comparison
+    recs_codes = []
+    man_codes = []
+
+    # Populate arrays
+    for obj_recs, obj_man in zip(totSizeTime, manual_output):
+        recs_codes.append(obj_recs["tool"])
+        man_codes.append(obj_man["code"])
+        
+    # Compare (intersect) lists to get only tools that appear in both tables
+    # (and disregard Help and Standards)
+    unique_codes = list(set(recs_codes).intersection(set(man_codes)))
+
+    # Initialize list of objects that will contain
+    # all and only the data necessary for graph
+    jointDict = []
+
+    # Populate array using unique codes as reference
+    for code in unique_codes:
+        name = ""
+        # Pick tools name from code
+        for m in manual_output:
+            if m["code"] == code:
+                name = m["name"]
+        # Pick tools' unitary run time starting from code
+        auto_time = 0
+        for t in totSizeTime:
+            if t["tool"] == code:
+                # Avoid division by zero
+                if t["totSize"] != 0:
+                    auto_time = round((t["runTime"] / t["totSize"] / 1000), 3)
+                    # return 0 if divided by zero 
+                    # it means it's 0/0 - if it ran 0 times the run time must be 0 too
+                else:
+                    auto_time = 0
+        # Pick manual processes' unitary run time starting from code
+        man_time = 0
+        for m in manual_output:
+            if m["code"] == code:
+                # Avoid division by zero
+                if m["size"] != 0:
+                    man_time = m["time"] / m["size"]
+                else:
+                    man_time = 0
+        # Populate array of objects with results above
+        obj = {
+            "code": code,
+            "name": name,
+            "autotime": auto_time,
+            "mantime": man_time
+            }
+        jointDict.append(obj)
+
+    # "Send" array of objects to client through endpoint
+    return jsonify(jointDict)
