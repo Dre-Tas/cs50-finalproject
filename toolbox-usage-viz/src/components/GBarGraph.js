@@ -65,7 +65,7 @@ class TimeVBarGraph extends Component {
 
     static defaultProps = {
         // You can override these props if you set them from the App
-        displayTitle: true,
+        displayTitle: false,
         displayLegend: true,
         legendPosition: 'bottom',
         fontSize: 20,

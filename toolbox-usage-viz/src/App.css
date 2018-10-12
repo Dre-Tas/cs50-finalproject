@@ -23,9 +23,9 @@
   font-size: large;
 }
 
-.container {
+/* .container {
   margin: -3%;
-}
+} */
 
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }

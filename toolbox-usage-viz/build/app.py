@@ -67,12 +67,10 @@ def sendRecords():
 # TO DELETE
 
 
-
-
-
 # Query "records" table
 records = db.session.query(
     Record.tool,
+    Record.revitversion,
     Record.start,
     Record.end,
     Record.size
@@ -128,7 +126,7 @@ for code in unique_codes:
             # Avoid division by zero
             if t["totSize"] != 0:
                 auto_time = round((t["runTime"] / t["totSize"] / 1000), 3)
-                # return 0 if divided by zero 
+                # return 0 if divided by zero
                 # it means it's 0/0 - if it ran 0 times the runtime must be 0 too
             else:
                 auto_time = 0
@@ -163,13 +161,148 @@ for code in unique_codes:
     jointDict.append(obj)
 
 
-@app.route('/api/countdb')
-def countdb():
-    count = 0
+@app.route('/api/summary')
+def summary():
+    countUsed = 0
+    totTimeSaved = 0
+
     for o in totSizeTime:
-        count += o["timesUsed"]
-    return jsonify(count)
-    
+        countUsed += o["timesUsed"]
+
+    for j in jointDict:
+        if j["autotime"] != 0:
+            totTimeSaved += (j["mantime"] - j["autotime"]) * j["totsize"]
+        else:
+            totTimeSaved += 0
+
+    starts = []
+    for ro in records_output:
+        starts.append(pd.to_datetime(ro["start"]))
+    starts.sort()
+
+    summaryDict = [{
+        "first": starts[0],
+        "totused": countUsed,
+        "totsaved": round(totTimeSaved, 2)
+    }]
+    return jsonify(summaryDict)
+
+
+@app.route('/api/graphToolbox')
+def graphToolbox():
+    # Initialize totals
+    countUsed = 0
+    countSize = 0
+    totTimeSaved = 0
+    # Calculate + populate totals
+    for o in totSizeTime:
+        countUsed += o["timesUsed"]
+        countSize += o["totSize"]
+    for j in jointDict:
+        if j["autotime"] != 0:
+            totTimeSaved += (j["mantime"] - j["autotime"]) * j["totsize"]
+        else:
+            totTimeSaved += 0
+
+    # Create dict to send through endpoint
+    graphToolboxDict = [{
+        "labels": ["Toolbox"],
+        "totused": {
+            "number": [countUsed],
+            "label": "number of uses",
+            "colour": "rgba(255, 151, 15, 0.3)"
+            },
+        "totsize": {
+            "number": [countSize],
+            "label": "number of elements used on",
+            "colour": "rgba(255, 142, 50, 0.3)"
+            },
+        "totsaved": {
+            "number": [round(totTimeSaved, 2)],
+            "label": "number of seconds saved",
+            "colour": "rgba(255, 108, 45, 0.3)"
+            }
+    }]
+    return jsonify(graphToolboxDict)
+
+
+@app.route('/api/graphVersion')
+def countVersion():
+    # Reduce to obj that sums by version
+    # but keep the division by tool to calculate the time saved
+    versions = {d["revitversion"] for d in records_output}
+    totVersion = [{
+        "version": version,
+        "tools": [{
+            "tool": tool,
+            "totSize": sum(d["size"] for d in records_output
+                if d["tool"] == tool and d["revitversion"] == version),
+            "runTime": int(sum(pd.to_datetime(d["end"]).value/1000000 -
+                            pd.to_datetime(d["start"]).value/1000000
+                            for d in records_output
+                                if d["tool"] == tool
+                                    and d["revitversion"] == version)),
+            "timesUsed": sum(d["tool"] == tool for d in records_output
+                                if d["tool"] == tool
+                                and d["revitversion"] == version)
+        } for tool in tools]
+    } for version in versions]
+
+    # Count times used per version
+    countUsed = []
+    for d in totVersion:
+        single_sum = 0
+        for e in d["tools"]:
+            single_sum += e["timesUsed"]
+        countUsed.append(single_sum)
+
+    # Count how many elements per version
+    countSize = []
+    for d in totVersion:
+        single_sum = 0
+        for e in d["tools"]:
+            single_sum += e["totSize"]
+        countSize.append(single_sum)
+
+    # Calculate time saving
+    totTimeSaved = []
+    for d in totVersion:
+        single_sum = 0
+        for e in d["tools"]:
+            tool = e["tool"]
+            # print(tool, file=sys.stdout)
+            for j in jointDict:
+                if j["code"] == tool:
+                    # print(j["autotime"], file=sys.stdout)
+                    if j["autotime"] != 0:
+                        single_sum += e["totSize"] * (j["mantime"] - j["autotime"])
+                    else:
+                        single_sum += 0
+            # single_sum += e["totSize"] * ((j["mantime"] / j["autotime"]) * j["timesused"])
+        totTimeSaved.append(round(single_sum, 2))
+
+    # Create dict to send through endpoint
+    graphVersionDict = [{
+        "labels": [d["version"] for d in totVersion],
+        "totused": {
+            "number": countUsed,
+            "label": "number of uses",
+            "colour": "rgba(255, 151, 15, 0.3)"
+            },
+        "totsize": {
+            "number": countSize,
+            "label": "number of elements used on",
+            "colour": "rgba(255, 142, 50, 0.3)"
+            },
+        "totsaved": {
+            "number": totTimeSaved,
+            "label": "number of seconds saved",
+            "colour": "rgba(255, 108, 45, 0.3)"
+            }
+    }]
+
+    return jsonify(graphVersionDict)
+
 
 @app.route('/api/unitsaving')
 def unitsaving():
@@ -180,3 +313,6 @@ def unitsaving():
 @app.route('/api/test')
 def test():
     return jsonify(totSizeTime)
+
+# USEFUL TO KEEP
+# print(lst, file=sys.stdout)
