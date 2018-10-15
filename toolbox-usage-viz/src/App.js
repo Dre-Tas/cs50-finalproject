@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import './App.css';
 import UsageHBarGraph from './components/HBarGraph';
 import TimeVBarGraph from './components/GBarGraph';
-import CustomButton from './components/CustomButton';
 import { Jumbotron, Container, Badge, Row, Col, Button, ButtonGroup } from 'reactstrap';
 import { BarLoader } from 'react-css-loaders';
 import moment from 'moment';
@@ -18,12 +17,14 @@ class App extends Component {
         };
     }
 
+    // Initial setup
     componentDidMount() {
         this.fetchSummary();
         this.fetchUnitSavings();
         this.fetchGraphToolbox();
     }
 
+    // Fetch APIs
     fetchSummary() {
         fetch('http://127.0.0.1:5000/api/summary')
             .then(response => response.json())
@@ -68,24 +69,24 @@ class App extends Component {
 
     fetchGraphTool() {
         fetch('http://127.0.0.1:5000/api/graphtool')
-        .then(response => response.json())
-        .then((tooldata) => {
-            this.setState({
-                show_graph: true,
-                graph_tb: tooldata,
-            })
-        });
+            .then(response => response.json())
+            .then((tooldata) => {
+                this.setState({
+                    show_graph: true,
+                    graph_tb: tooldata,
+                })
+            });
     }
 
     fetchGraphUser() {
         fetch('http://127.0.0.1:5000/api/graphuser')
-        .then(response => response.json())
-        .then((userdata) => {
-            this.setState({
-                show_graph: true,
-                graph_tb: userdata,
-            })
-        });
+            .then(response => response.json())
+            .then((userdata) => {
+                this.setState({
+                    show_graph: true,
+                    graph_tb: userdata,
+                })
+            });
     }
 
     rst() {
@@ -94,6 +95,9 @@ class App extends Component {
         })
     }
 
+    radio(i) {
+        this.setState({ radio: i });
+    }
 
     render() {
         return (
@@ -128,17 +132,17 @@ class App extends Component {
                 <h3> How many times has the toolbox been used? On how many elements? </h3>
 
                 <ButtonGroup>
-                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphTool() }}>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphTool(); this.radio(1)}} active={this.state.radio === 1}>
                         By Tool</Button>
-                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphVersion() }}>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphVersion(); this.radio(2)}} active={this.state.radio === 2}>
                         By Version</Button>
-                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphUser() }}>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphUser(); this.radio(3) }} active={this.state.radio === 3}>
                         By User</Button>
-                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphToolbox() }}>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphToolbox(); this.radio(4) }} active={this.state.radio === 4}>
                         Total</Button>
                 </ButtonGroup>
 
-                <Container fluid>                    
+                <Container fluid>
                     {this.state.show_graph ? (
                         <Row>
                             <Col>
@@ -170,11 +174,11 @@ class App extends Component {
                             <BarLoader />
                         )}
                 </Container>
-
-{/* <CustomButton/> */}
             </div>);
     }
 }
+
+// Break into classes - better readability
 
 class TimesUsed extends Component {
     render() {

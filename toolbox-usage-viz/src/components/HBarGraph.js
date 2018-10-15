@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { defaults } from 'react-chartjs-2';
 import { HorizontalBar } from 'react-chartjs-2';
 import _ from 'lodash';
-import { Button, ButtonGroup } from 'reactstrap';
 
 defaults.global.defaultFontFamily = 'CircularStd'
 
