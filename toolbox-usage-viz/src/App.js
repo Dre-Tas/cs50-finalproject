@@ -2,108 +2,196 @@ import React, { Component } from 'react';
 import './App.css';
 import UsageHBarGraph from './components/HBarGraph';
 import TimeVBarGraph from './components/GBarGraph';
-import { Jumbotron, Container, Badge } from 'reactstrap';
+import CustomButton from './components/CustomButton';
+import { Jumbotron, Container, Badge, Row, Col, Button, ButtonGroup } from 'reactstrap';
 import { BarLoader } from 'react-css-loaders';
-import man_proc from './ManualProcess.json';
+import moment from 'moment';
 
 class App extends Component {
     constructor() {
         super();
         this.state = {
-            records_lst: [],
-            man_process: man_proc,
+            summary: [],
+            show_graph: true,
+            graph_tb: [],
+            unitsavingAuto: [],
         };
     }
 
     componentDidMount() {
-        this.fetchData();
+        this.fetchSummary();
+        this.fetchUnitSavings();
+        this.fetchGraphToolbox();
     }
 
-    fetchData() {
-        fetch('http://127.0.0.1:5000/api/dbrecords')
+    fetchSummary() {
+        fetch('http://127.0.0.1:5000/api/summary')
             .then(response => response.json())
-            .then((data) => {
+            .then((smr) => {
                 this.setState({
-                    records_lst: data,
+                    summary: smr,
                 })
             });
     }
+
+    fetchUnitSavings() {
+        fetch('http://127.0.0.1:5000/api/unitsaving')
+            .then(response => response.json())
+            .then((auto) => {
+                this.setState({
+                    unitsavingAuto: auto,
+                })
+            });
+    }
+
+    fetchGraphToolbox() {
+        fetch('http://127.0.0.1:5000/api/graphtoolbox')
+            .then(response => response.json())
+            .then((tbdata) => {
+                this.setState({
+                    show_graph: true,
+                    graph_tb: tbdata,
+                })
+            });
+    }
+
+    fetchGraphVersion() {
+        fetch('http://127.0.0.1:5000/api/graphversion')
+            .then(response => response.json())
+            .then((versdata) => {
+                this.setState({
+                    show_graph: true,
+                    graph_tb: versdata,
+                })
+            });
+    }
+
+    fetchGraphTool() {
+        fetch('http://127.0.0.1:5000/api/graphtool')
+        .then(response => response.json())
+        .then((tooldata) => {
+            this.setState({
+                show_graph: true,
+                graph_tb: tooldata,
+            })
+        });
+    }
+
+    fetchGraphUser() {
+        fetch('http://127.0.0.1:5000/api/graphuser')
+        .then(response => response.json())
+        .then((userdata) => {
+            this.setState({
+                show_graph: true,
+                graph_tb: userdata,
+            })
+        });
+    }
+
+    rst() {
+        this.setState({
+            show_graph: false
+        })
+    }
+
 
     render() {
         return (
             <div className="App">
                 <Jumbotron fluid>
                     <Container className="container" fluid>
-                        <TotUsageTime pass={this.state.records_lst} />
+                        {this.state.summary.length ? (
+                            <TotUsageTime sum={this.state.summary[0]} />
+                        ) : (
+                                <BarLoader />
+                            )}
 
                         <hr className="my-2" />
 
-                        <TimesUsed pass={this.state.records_lst.length} />
+                        {this.state.summary.length ? (
+                            <TimesUsed sumtimes={this.state.summary[0].totused} />
+                        ) : (
+                                <BarLoader />
+                            )}
                     </Container>
                 </Jumbotron>
 
-                {this.state.records_lst.length ? (
-                    <TimeVBarGraph recs={this.state.records_lst} baseline={this.state.man_process} />
-                ) : (
-                    <BarLoader />
-                    )}
-
-                    <hr className="my-2" />
-
-                {/* Pass all JSON to graph */}
-                {this.state.records_lst.length ? (
-                    <UsageHBarGraph recs={this.state.records_lst} />
+                <h3> How much time is each tool saving every time? </h3>
+                {this.state.unitsavingAuto.length ? (
+                    <TimeVBarGraph recs={this.state.unitsavingAuto} />
                 ) : (
                         <BarLoader />
                     )}
 
+                <hr className="my-2" />
+
+                <h3> How many times has the toolbox been used? On how many elements? </h3>
+
+                <ButtonGroup>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphTool() }}>
+                        By Tool</Button>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphVersion() }}>
+                        By Version</Button>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphUser() }}>
+                        By User</Button>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphToolbox() }}>
+                        Total</Button>
+                </ButtonGroup>
+
+                <Container fluid>                    
+                    {this.state.show_graph ? (
+                        <Row>
+                            <Col>
+                                {this.state.graph_tb.length ? (
+                                    <UsageHBarGraph datasets={this.state.graph_tb[0].totused}
+                                        labels={this.state.graph_tb[0].labels} />
+                                ) : (
+                                        <BarLoader />
+                                    )}
+                            </Col>
+                            <Col>
+                                {this.state.graph_tb.length ? (
+                                    <UsageHBarGraph datasets={this.state.graph_tb[0].totsize}
+                                        labels={this.state.graph_tb[0].labels} />
+                                ) : (
+                                        <BarLoader />
+                                    )}
+                            </Col>
+                            <Col>
+                                {this.state.graph_tb.length ? (
+                                    <UsageHBarGraph datasets={this.state.graph_tb[0].totsaved}
+                                        labels={this.state.graph_tb[0].labels} />
+                                ) : (
+                                        <BarLoader />
+                                    )}
+                            </Col>
+                        </Row>
+                    ) : (
+                            <BarLoader />
+                        )}
+                </Container>
+
+{/* <CustomButton/> */}
             </div>);
     }
 }
 
 class TimesUsed extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
-            <h3 className="display-5">It has been used {this.props.pass} times!</h3>
+            <h3 className="display-5">It has been used {this.props.sumtimes} times!</h3>
         );
     }
 }
 
 class TotUsageTime extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-    calcTotalUsageTime() {
-        // Calculates the time in milliseconds
-        let total_usage_time = 0;
-
-        {
-            this.props.pass.map(function (lst, i) {
-                let start = new Date(Date.parse(lst.start));
-                let end = new Date(Date.parse(lst.end));
-                total_usage_time += end - start
-            })
-        };
-
-        return total_usage_time / 1000 / 60 / 60;
-    }
-
     render() {
-        var usage_time = this.calcTotalUsageTime();
-
         return (
             <div>
-                <h1 className="display-4">Willow.Design()
-                has saved <Badge color="info" pill>{(usage_time).toFixed(2)} hours</Badge>
-                    * from my latest calculations!</h1>
-                <p>Happy days!</p>
-                <p>* this right now is not really the time that has been saved,
-                    but the time the toolbox has been running</p>
+                <h1 className="display-4">The Revit Toolbox
+                has saved <Badge color="info" pill>
+                        {(this.props.sum.totsaved / 3600).toFixed(1)} hours
+                </Badge> since {moment.utc(this.props.sum.first).format("LL")}</h1>
             </div>
         )
     }
