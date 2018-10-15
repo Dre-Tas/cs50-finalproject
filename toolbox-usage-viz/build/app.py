@@ -57,18 +57,9 @@ def index():
 
 # endpoints / APIs
 
-# TO DELETE
-@app.route('/api/dbrecords')
-def sendRecords():
-    records = Record.query.all()
-    records_schema = RecordSchema(many=True)
-    output = records_schema.dump(records).data
-    return jsonify(output)
-# TO DELETE
-
-
 # Query "records" table
 records = db.session.query(
+    Record.user,
     Record.tool,
     Record.revitversion,
     Record.start,
@@ -188,7 +179,7 @@ def summary():
     return jsonify(summaryDict)
 
 
-@app.route('/api/graphToolbox')
+@app.route('/api/graphtoolbox')
 def graphToolbox():
     # Initialize totals
     countUsed = 0
@@ -226,7 +217,7 @@ def graphToolbox():
     return jsonify(graphToolboxDict)
 
 
-@app.route('/api/graphVersion')
+@app.route('/api/graphversion')
 def countVersion():
     # Reduce to obj that sums by version
     # but keep the division by tool to calculate the time saved
@@ -304,6 +295,109 @@ def countVersion():
     return jsonify(graphVersionDict)
 
 
+@app.route('/api/graphtool')
+def countTool():
+    # Create dict to send through endpoint
+    graphToolDict = [{
+        "labels": [d["name"] for d in jointDict],
+        "totused": {
+            "number": [d["timesused"] for d in jointDict],
+            "label": "number of uses",
+            "colour": "rgba(255, 151, 15, 0.3)"
+            },
+        "totsize": {
+            "number": [d["totsize"] for d in jointDict],
+            "label": "number of elements used on",
+            "colour": "rgba(255, 142, 50, 0.3)"
+            },
+        "totsaved": {
+            "number": [round((d["mantime"] - d["autotime"]) * d["totsize"], 2) for d in jointDict],
+            "label": "number of seconds saved",
+            "colour": "rgba(255, 108, 45, 0.3)"
+            }
+    }]
+
+    return jsonify(graphToolDict)
+
+
+@app.route('/api/graphuser')
+def countUser():
+    # Reduce to obj that sums by version
+    # but keep the division by tool to calculate the time saved
+    users = {d["user"] for d in records_output}
+    totUser = [{
+        "user": user,
+        "tools": [{
+            "tool": tool,
+            "totSize": sum(d["size"] for d in records_output
+                if d["tool"] == tool and d["user"] == user),
+            "runTime": int(sum(pd.to_datetime(d["end"]).value/1000000 -
+                            pd.to_datetime(d["start"]).value/1000000
+                            for d in records_output
+                                if d["tool"] == tool
+                                    and d["user"] == user)),
+            "timesUsed": sum(d["tool"] == tool for d in records_output
+                                if d["tool"] == tool
+                                and d["user"] == user)
+        } for tool in tools]
+    } for user in users]
+
+    # Count times used per version
+    countUsed = []
+    for d in totUser:
+        single_sum = 0
+        for e in d["tools"]:
+            single_sum += e["timesUsed"]
+        countUsed.append(single_sum)
+
+    # Count how many elements per version
+    countSize = []
+    for d in totUser:
+        single_sum = 0
+        for e in d["tools"]:
+            single_sum += e["totSize"]
+        countSize.append(single_sum)
+
+    # Calculate time saving
+    totTimeSaved = []
+    for d in totUser:
+        single_sum = 0
+        for e in d["tools"]:
+            tool = e["tool"]
+            # print(tool, file=sys.stdout)
+            for j in jointDict:
+                if j["code"] == tool:
+                    # print(j["autotime"], file=sys.stdout)
+                    if j["autotime"] != 0:
+                        single_sum += e["totSize"] * (j["mantime"] - j["autotime"])
+                    else:
+                        single_sum += 0
+            # single_sum += e["totSize"] * ((j["mantime"] / j["autotime"]) * j["timesused"])
+        totTimeSaved.append(round(single_sum, 2))
+
+    # Create dict to send through endpoint
+    graphUserDict = [{
+        "labels": [d["user"] for d in totUser],
+        "totused": {
+            "number": countUsed,
+            "label": "number of uses",
+            "colour": "rgba(255, 151, 15, 0.3)"
+            },
+        "totsize": {
+            "number": countSize,
+            "label": "number of elements used on",
+            "colour": "rgba(255, 142, 50, 0.3)"
+            },
+        "totsaved": {
+            "number": totTimeSaved,
+            "label": "number of seconds saved",
+            "colour": "rgba(255, 108, 45, 0.3)"
+            }
+    }]
+
+    return jsonify(graphUserDict)
+
+
 @app.route('/api/unitsaving')
 def unitsaving():
     # "Send" array of objects to client through endpoint
@@ -312,7 +406,7 @@ def unitsaving():
 
 @app.route('/api/test')
 def test():
-    return jsonify(totSizeTime)
+    return jsonify(records_output)
 
 # USEFUL TO KEEP
 # print(lst, file=sys.stdout)

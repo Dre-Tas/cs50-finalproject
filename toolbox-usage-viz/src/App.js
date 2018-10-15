@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import UsageHBarGraph from './components/HBarGraph';
 import TimeVBarGraph from './components/GBarGraph';
+import CustomButton from './components/CustomButton';
 import { Jumbotron, Container, Badge, Row, Col, Button, ButtonGroup } from 'reactstrap';
 import { BarLoader } from 'react-css-loaders';
 import moment from 'moment';
@@ -44,7 +45,7 @@ class App extends Component {
     }
 
     fetchGraphToolbox() {
-        fetch('http://127.0.0.1:5000/api/graphToolbox')
+        fetch('http://127.0.0.1:5000/api/graphtoolbox')
             .then(response => response.json())
             .then((tbdata) => {
                 this.setState({
@@ -55,7 +56,7 @@ class App extends Component {
     }
 
     fetchGraphVersion() {
-        fetch('http://127.0.0.1:5000/api/graphVersion')
+        fetch('http://127.0.0.1:5000/api/graphversion')
             .then(response => response.json())
             .then((versdata) => {
                 this.setState({
@@ -63,6 +64,28 @@ class App extends Component {
                     graph_tb: versdata,
                 })
             });
+    }
+
+    fetchGraphTool() {
+        fetch('http://127.0.0.1:5000/api/graphtool')
+        .then(response => response.json())
+        .then((tooldata) => {
+            this.setState({
+                show_graph: true,
+                graph_tb: tooldata,
+            })
+        });
+    }
+
+    fetchGraphUser() {
+        fetch('http://127.0.0.1:5000/api/graphuser')
+        .then(response => response.json())
+        .then((userdata) => {
+            this.setState({
+                show_graph: true,
+                graph_tb: userdata,
+            })
+        });
     }
 
     rst() {
@@ -105,10 +128,14 @@ class App extends Component {
                 <h3> How many times has the toolbox been used? On how many elements? </h3>
 
                 <ButtonGroup>
-                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphToolbox() }}>
-                        Total</Button>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphTool() }}>
+                        By Tool</Button>
                     <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphVersion() }}>
                         By Version</Button>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphUser() }}>
+                        By User</Button>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphToolbox() }}>
+                        Total</Button>
                 </ButtonGroup>
 
                 <Container fluid>                    
@@ -144,7 +171,7 @@ class App extends Component {
                         )}
                 </Container>
 
-
+{/* <CustomButton/> */}
             </div>);
     }
 }
