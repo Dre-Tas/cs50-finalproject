@@ -3,12 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS, cross_origin
 import pandas as pd
-# import sys
+import sys
 
 
 # Set up flask app with CORS
 app = Flask(__name__)
 CORS(app)
+
 
 # Set up SQLAlchemy + Marshmellow
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\CS50\\cs50-finalproject\\toolboxrecords-poc.db'
@@ -16,6 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
+print(app, file=sys.stdout)
 
 # Create records table model class
 class Record(db.Model):
