@@ -132,9 +132,9 @@ class App extends Component {
                 <h3> How many times has the toolbox been used? On how many elements? </h3>
 
                 <ButtonGroup>
-                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphTool(); this.radio(1)}} active={this.state.radio === 1}>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphTool(); this.radio(1) }} active={this.state.radio === 1}>
                         By Tool</Button>
-                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphVersion(); this.radio(2)}} active={this.state.radio === 2}>
+                    <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphVersion(); this.radio(2) }} active={this.state.radio === 2}>
                         By Version</Button>
                     <Button outline color="secondary" onClick={() => { this.rst(); this.fetchGraphUser(); this.radio(3) }} active={this.state.radio === 3}>
                         By User</Button>

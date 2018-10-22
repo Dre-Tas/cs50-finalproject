@@ -196,6 +196,12 @@ def unitsaving():
     return jsonify(jointDict)
 
 
+@app.route('/api/test')
+def test():
+    # "Send" array of objects to client through endpoint
+    return jsonify(records_output)
+
+
 @app.route('/api/graphtoolbox')
 def graphToolbox():
     # Initialize totals
