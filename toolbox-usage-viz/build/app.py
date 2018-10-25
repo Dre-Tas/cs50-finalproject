@@ -1,14 +1,15 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS, cross_origin
-import sys
 import pandas as pd
+import sys
 
 
 # Set up flask app with CORS
 app = Flask(__name__)
 CORS(app)
+
 
 # Set up SQLAlchemy + Marshmellow
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\CS50\\cs50-finalproject\\toolboxrecords-poc.db'
@@ -16,6 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
+print(app, file=sys.stdout)
 
 # Create records table model class
 class Record(db.Model):
@@ -28,6 +30,7 @@ class Record(db.Model):
     end = db.Column(db.DateTime)
     size = db.Column(db.Integer)
 
+
 # Create manual table model class
 class Manual(db.Model):
     __tablename__ = "manual"
@@ -36,10 +39,12 @@ class Manual(db.Model):
     time = db.Column(db.Float)
     size = db.Column(db.Integer)
 
+
 # Create marshmallow schema for records
 class RecordSchema(ma.ModelSchema):
     class Meta:
         model = Record
+
 
 # Create marshmallow schema for manual
 class ManualSchema(ma.ModelSchema):
@@ -47,17 +52,17 @@ class ManualSchema(ma.ModelSchema):
         model = Manual
 
 
+# Routes
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
-# USEFUL TO KEEP
-# print(lst, file=sys.stdout)
-
 # endpoints / APIs
 
 # Query "records" table
+# Could have done query all but keep this way for beter scalability
 records = db.session.query(
     Record.user,
     Record.tool,
@@ -65,7 +70,7 @@ records = db.session.query(
     Record.start,
     Record.end,
     Record.size
-    )
+)
 records_schema = RecordSchema(many=True)
 records_output = records_schema.dump(records).data
 
@@ -76,8 +81,8 @@ totSizeTime = [{
     "tool": tool,
     "totSize": sum(d["size"] for d in records_output if d["tool"] == tool),
     "runTime": int(sum(pd.to_datetime(d["end"]).value/1000000 -
-                    pd.to_datetime(d["start"]).value/1000000
-                    for d in records_output if d["tool"] == tool)),
+                       pd.to_datetime(d["start"]).value/1000000
+                       for d in records_output if d["tool"] == tool)),
     "timesUsed": sum(d["tool"] == tool for d in records_output if d["tool"] == tool)
 } for tool in tools]
 
@@ -94,7 +99,7 @@ man_codes = []
 for obj_recs, obj_man in zip(totSizeTime, manual_output):
     recs_codes.append(obj_recs["tool"])
     man_codes.append(obj_man["code"])
-    
+
 # Compare (intersect) lists to get only tools that appear in both tables
 # (and disregard Help and Standards)
 unique_codes = list(set(recs_codes).intersection(set(man_codes)))
@@ -148,35 +153,55 @@ for code in unique_codes:
         "mantime": man_time,
         "timesused": times_used,
         "totsize": tot_size
-        }
+    }
     jointDict.append(obj)
 
 
+# This sends data to the top part of the app with the summary info (jumbotron)
 @app.route('/api/summary')
 def summary():
+    # Initialize variables
     countUsed = 0
     totTimeSaved = 0
+    starts = []
 
+    # How many times ppl have clicked on any button of the toolbox?
     for o in totSizeTime:
         countUsed += o["timesUsed"]
 
+    # Calculate total time saved
     for j in jointDict:
         if j["autotime"] != 0:
             totTimeSaved += (j["mantime"] - j["autotime"]) * j["totsize"]
         else:
             totTimeSaved += 0
 
-    starts = []
+    # get start datetimes
     for ro in records_output:
         starts.append(pd.to_datetime(ro["start"]))
     starts.sort()
 
+    # Init and populate dict
     summaryDict = [{
         "first": starts[0],
         "totused": countUsed,
         "totsaved": round(totTimeSaved, 2)
     }]
+    # Return "jsonified" dictionary
     return jsonify(summaryDict)
+
+
+# This populates the first graph (vertical grouped bars)
+@app.route('/api/unitsaving')
+def unitsaving():
+    # "Send" array of objects to client through endpoint
+    return jsonify(jointDict)
+
+
+@app.route('/api/test')
+def test():
+    # "Send" array of objects to client through endpoint
+    return jsonify(records_output)
 
 
 @app.route('/api/graphtoolbox')
@@ -202,17 +227,17 @@ def graphToolbox():
             "number": [countUsed],
             "label": "number of uses",
             "colour": "rgba(255, 151, 15, 0.3)"
-            },
+        },
         "totsize": {
             "number": [countSize],
             "label": "number of elements used on",
             "colour": "rgba(255, 142, 50, 0.3)"
-            },
+        },
         "totsaved": {
             "number": [round(totTimeSaved, 2)],
             "label": "number of seconds saved",
             "colour": "rgba(255, 108, 45, 0.3)"
-            }
+        }
     }]
     return jsonify(graphToolboxDict)
 
@@ -227,15 +252,15 @@ def countVersion():
         "tools": [{
             "tool": tool,
             "totSize": sum(d["size"] for d in records_output
-                if d["tool"] == tool and d["revitversion"] == version),
+                           if d["tool"] == tool and d["revitversion"] == version),
             "runTime": int(sum(pd.to_datetime(d["end"]).value/1000000 -
-                            pd.to_datetime(d["start"]).value/1000000
-                            for d in records_output
-                                if d["tool"] == tool
-                                    and d["revitversion"] == version)),
+                               pd.to_datetime(d["start"]).value/1000000
+                               for d in records_output
+                               if d["tool"] == tool
+                               and d["revitversion"] == version)),
             "timesUsed": sum(d["tool"] == tool for d in records_output
-                                if d["tool"] == tool
-                                and d["revitversion"] == version)
+                             if d["tool"] == tool
+                             and d["revitversion"] == version)
         } for tool in tools]
     } for version in versions]
 
@@ -266,7 +291,8 @@ def countVersion():
                 if j["code"] == tool:
                     # print(j["autotime"], file=sys.stdout)
                     if j["autotime"] != 0:
-                        single_sum += e["totSize"] * (j["mantime"] - j["autotime"])
+                        single_sum += e["totSize"] * \
+                            (j["mantime"] - j["autotime"])
                     else:
                         single_sum += 0
             # single_sum += e["totSize"] * ((j["mantime"] / j["autotime"]) * j["timesused"])
@@ -279,17 +305,17 @@ def countVersion():
             "number": countUsed,
             "label": "number of uses",
             "colour": "rgba(255, 151, 15, 0.3)"
-            },
+        },
         "totsize": {
             "number": countSize,
             "label": "number of elements used on",
             "colour": "rgba(255, 142, 50, 0.3)"
-            },
+        },
         "totsaved": {
             "number": totTimeSaved,
             "label": "number of seconds saved",
             "colour": "rgba(255, 108, 45, 0.3)"
-            }
+        }
     }]
 
     return jsonify(graphVersionDict)
@@ -304,17 +330,17 @@ def countTool():
             "number": [d["timesused"] for d in jointDict],
             "label": "number of uses",
             "colour": "rgba(255, 151, 15, 0.3)"
-            },
+        },
         "totsize": {
             "number": [d["totsize"] for d in jointDict],
             "label": "number of elements used on",
             "colour": "rgba(255, 142, 50, 0.3)"
-            },
+        },
         "totsaved": {
             "number": [round((d["mantime"] - d["autotime"]) * d["totsize"], 2) for d in jointDict],
             "label": "number of seconds saved",
             "colour": "rgba(255, 108, 45, 0.3)"
-            }
+        }
     }]
 
     return jsonify(graphToolDict)
@@ -330,15 +356,15 @@ def countUser():
         "tools": [{
             "tool": tool,
             "totSize": sum(d["size"] for d in records_output
-                if d["tool"] == tool and d["user"] == user),
+                           if d["tool"] == tool and d["user"] == user),
             "runTime": int(sum(pd.to_datetime(d["end"]).value/1000000 -
-                            pd.to_datetime(d["start"]).value/1000000
-                            for d in records_output
-                                if d["tool"] == tool
-                                    and d["user"] == user)),
+                               pd.to_datetime(d["start"]).value/1000000
+                               for d in records_output
+                               if d["tool"] == tool
+                               and d["user"] == user)),
             "timesUsed": sum(d["tool"] == tool for d in records_output
-                                if d["tool"] == tool
-                                and d["user"] == user)
+                             if d["tool"] == tool
+                             and d["user"] == user)
         } for tool in tools]
     } for user in users]
 
@@ -369,7 +395,8 @@ def countUser():
                 if j["code"] == tool:
                     # print(j["autotime"], file=sys.stdout)
                     if j["autotime"] != 0:
-                        single_sum += e["totSize"] * (j["mantime"] - j["autotime"])
+                        single_sum += e["totSize"] * \
+                            (j["mantime"] - j["autotime"])
                     else:
                         single_sum += 0
             # single_sum += e["totSize"] * ((j["mantime"] / j["autotime"]) * j["timesused"])
@@ -382,31 +409,21 @@ def countUser():
             "number": countUsed,
             "label": "number of uses",
             "colour": "rgba(255, 151, 15, 0.3)"
-            },
+        },
         "totsize": {
             "number": countSize,
             "label": "number of elements used on",
             "colour": "rgba(255, 142, 50, 0.3)"
-            },
+        },
         "totsaved": {
             "number": totTimeSaved,
             "label": "number of seconds saved",
             "colour": "rgba(255, 108, 45, 0.3)"
-            }
+        }
     }]
 
     return jsonify(graphUserDict)
 
-
-@app.route('/api/unitsaving')
-def unitsaving():
-    # "Send" array of objects to client through endpoint
-    return jsonify(jointDict)
-
-
-@app.route('/api/test')
-def test():
-    return jsonify(records_output)
 
 # USEFUL TO KEEP
 # print(lst, file=sys.stdout)
